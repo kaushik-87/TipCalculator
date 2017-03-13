@@ -19,5 +19,8 @@ class Calculator: NSObject {
         return NSNumber(value:billAmount.floatValue+tipAmount.floatValue);
     }
     
+    func splitAmount(totalAmount:NSNumber,splitBy:NSNumber) -> NSNumber {
+        return NSNumber(value:totalAmount.floatValue/splitBy.floatValue);
+    }
     
 }

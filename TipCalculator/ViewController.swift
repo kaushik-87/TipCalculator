@@ -4,7 +4,7 @@
 //
 //  Created by Kaushik Thekkekere 
 import UIKit
-class ViewController: UIViewController,UITextFieldDelegate {
+class ViewController: UIViewController,UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource  {
 
     let calculator = Calculator()
     
@@ -14,7 +14,7 @@ class ViewController: UIViewController,UITextFieldDelegate {
     @IBOutlet weak var tipAmount: UITextField!
     @IBOutlet weak var sliderView: UIView!
     @IBOutlet weak var totalAmount: UILabel!
-    
+    @IBOutlet weak var splitBetween: UIPickerView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,10 +73,22 @@ func tap(sender: UITapGestureRecognizer) {
     
 
     func calculateTip() -> Void {
-        let tipAmount = calculator.calculateTipAmount(billAmount: currencyNumberFormatter().number(from: self.billAmount.text!)!, tipPercentage: NumberFormatter().number(from: self.tipValue.text!)!)
-        self.tipAmount.text = localizedCurrencyInString(value: tipAmount)
-        let total = calculator.totalAmount(billAmount: currencyNumberFormatter().number(from: self.billAmount.text!)!, tipAmount: tipAmount)
-        self.totalAmount.text = localizedCurrencyInString(value: total)
+        
+        let string = self.billAmount.text
+        
+        if (string != "")
+        {
+            let tipAmount = calculator.calculateTipAmount(billAmount: currencyNumberFormatter().number(from: self.billAmount.text!)!, tipPercentage: NumberFormatter().number(from: self.tipValue.text!)!)
+            self.tipAmount.text = localizedCurrencyInString(value: tipAmount)
+            var total = calculator.totalAmount(billAmount: currencyNumberFormatter().number(from: self.billAmount.text!)!, tipAmount: tipAmount)
+            if(splitBetween.selectedRow(inComponent: 0)>0)
+            {
+                total = calculator.splitAmount(totalAmount: total, splitBy: NSNumber(value: splitBetween.selectedRow(inComponent: 0)+1))
+            }
+            self.totalAmount.text = localizedCurrencyInString(value: total)
+        }
+        
+
     }
     
     
@@ -128,6 +140,51 @@ func tap(sender: UITapGestureRecognizer) {
 
         return true
         }
+    
+    
+    public func numberOfComponents(in pickerView: UIPickerView) -> Int
+    {
+        return 1
+    }
+    public func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int
+    {
+        return 10
+    }
+    
+    public func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat
+    {
+        return 35.00
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        var label: UILabel
+        
+        if let view = view as? UILabel {
+            label = view
+        } else {
+            label = UILabel()
+        }
+        
+        label.textColor = .white
+        label.textAlignment = .center
+        label.font = UIFont(name: chalkDusterFontName, size: 35)
+        
+        
+        var splitBetWeenStr = "None"
+        if(row != 0)
+        {
+            splitBetWeenStr = String(format:"%d People",row+1)
+        }
+        label.text = splitBetWeenStr
+        
+        return label
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
+    {
+        calculateTip()
+    }
+
 }
 
 
